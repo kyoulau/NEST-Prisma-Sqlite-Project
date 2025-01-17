@@ -1,14 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { TasksService } from './tasks.service';
+import { CreateTaskDto } from 'src/data/DTO/create-task.dto';
+import { UpdateClassDTO } from 'src/data/DTO/update-task.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor (private tasksService: TasksService){}
 
   @Post()
-  createTask(@Body() body: any){
-    console.log(body)
-    return this.tasksService.createTask(body)
+  createTask(@Body() createTaskDto: CreateTaskDto){
+    return this.tasksService.createTask(createTaskDto)
   }
 
   @Get()
@@ -17,18 +18,19 @@ export class TasksController {
   }
 
   @Get(':id')
-  listOneTask(@Param('id') id:string){
+  listOneTask(@Param('id', ParseIntPipe) id:number){
     return this.tasksService.findTaskById(id);
+    // Conversao do pipe feito na propria requisição. Id começa como string mas e transformado pelo pipe para ser number
   }
 
-  @Patch()
-  updateOneTask(@Param('taskId') taskId: string, @Body() body: any){
-    return this.tasksService.updateTask(taskId,body)
+  @Patch(':id')
+  updateOneTask(@Param('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateClassDTO){
+    return this.tasksService.updateTask(id,updateTaskDto)
   }
 
-  @Delete()
-  deleteOneTask(@Param('taskId')taskId:string){
-    return this.tasksService.deleteTask(taskId)
+  @Delete(':id')
+  deleteOneTask(@Param('id', ParseIntPipe) id:number){
+    return this.tasksService.deleteTask(id)
   }
 
 }
