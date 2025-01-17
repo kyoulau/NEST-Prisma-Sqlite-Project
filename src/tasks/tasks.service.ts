@@ -4,28 +4,29 @@ import { TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
 import { Task } from 'src/data/database/task.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { GetTaskDto } from 'src/data/DTO/get-task.dto';
 
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService){}
 
-  private readonly tasks: Task[] = [
-    {
-      id:1,
-      title: "Write a blog post about NestJS",
-      description: "Research and write a comprehensive blog post covering the basics of NestJS framework.",
-      completed: false,
-      priority: "High", 
+  // private readonly tasks: Task[] = [
+  //   {
+  //     id:1,
+  //     title: "Write a blog post about NestJS",
+  //     description: "Research and write a comprehensive blog post covering the basics of NestJS framework.",
+  //     completed: false,
+  //     priority: "High", 
 
-    },
-    {
-      id:2,
-      "title": "Grocery Shopping",
-      "description": "Buy milk, eggs, bread, and fruits.",
-      "completed": false,
-      "priority": "Medium",
-    }
-  ];
+  //   },
+  //   {
+  //     id:2,
+  //     "title": "Grocery Shopping",
+  //     "description": "Buy milk, eggs, bread, and fruits.",
+  //     "completed": false,
+  //     "priority": "Medium",
+  //   }
+  // ];
 
   // createTask(body: any){
   //   const newUserId = this.tasks.length + 1;
@@ -60,9 +61,9 @@ export class TasksService {
   //   const allTasks = this.tasks
   // }
 
-  async findAllTasks(){
-    const allTasks = await this.prisma.task.findMany();
-    return allTasks;
+  async findAllTasks(): Promise<GetTaskDto[]>{
+    const tasks: Task[] =  await this.prisma.task.findMany();
+    return tasks;
   }
 
   // findTaskById(id: string){
