@@ -20,8 +20,8 @@ export class Task {
   @IsBoolean()
   completed: boolean=false;
 
-  //@CreateDateColumn()
-  //createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
   //@UpdateDateColumn()
   //updatedAt: Date;

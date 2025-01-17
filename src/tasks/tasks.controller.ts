@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from 
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from 'src/data/DTO/create-task.dto';
 import { UpdateClassDTO } from 'src/data/DTO/update-task.dto';
+import { GetTaskDto } from 'src/data/DTO/get-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -12,9 +13,22 @@ export class TasksController {
     return this.tasksService.createTask(createTaskDto)
   }
 
+  // @Get()
+  //  listAllTasks(): Promise<GetTaskDto[]>{
+  //   return this.tasksService.findAllTasks();
+  // }
+
   @Get()
-  listAllTasks(){
-    return this.tasksService.findAllTasks();
+  async findAll(): Promise<GetTaskDto[]> {
+    const tasks = await this.tasksService.findAllTasks();
+    return tasks.map(task => ({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      priority: task.priority,
+      completed: task.completed,
+      createdAt: task.createdAt
+    }));
   }
 
   @Get(':id')
