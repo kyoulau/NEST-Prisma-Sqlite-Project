@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from 'src/data/DTO/create-task.dto';
 import { UpdateClassDTO } from 'src/data/DTO/update-task.dto';
 import { GetTaskDto } from 'src/data/DTO/get-task.dto';
+import { LoggersInterceptor } from 'src/Interceptors/log.interceptor';
 
 @Controller('tasks')
 export class TasksController {
@@ -19,6 +20,7 @@ export class TasksController {
   // }
 
   @Get()
+  @UseInterceptors(LoggersInterceptor)
   async findAll(): Promise<GetTaskDto[]> {
     const tasks = await this.tasksService.findAllTasks();
     return tasks.map(task => ({

@@ -18,6 +18,7 @@ export class User{
   @IsNotEmpty()
   @MinLength(8) @MaxLength(12)
   userPassword:string;
+   //senha criptografada
 
   @CreateDateColumn()
   createdAt: Date;
@@ -25,7 +26,7 @@ export class User{
   @IsNotEmpty()
   @IsString()
   @IsIn(['admin', 'user', 'guest'])
-  Role: string;
+  userRoleAtributed: string;
 
-  //senha criptografada
+ 
 }
