@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
 
 export enum TaskPriority {
   HIGH = 'HIGH',
@@ -19,6 +19,11 @@ export class CreateTaskDto {
   @IsString()
   @IsIn([TaskPriority.HIGH, TaskPriority.MEDIUM, TaskPriority.LOW])
   readonly priority: string
+
+  @IsNumber()
+  @IsNotEmpty()
+  readonly userId: number
+
 
 }
 

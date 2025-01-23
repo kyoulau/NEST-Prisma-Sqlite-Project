@@ -7,6 +7,8 @@ import { User } from 'src/data/database/user.entity';
 import { TasksController } from 'src/tasks/tasks.controller';
 import { TasksService } from 'src/tasks/tasks.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserController } from 'src/user/user.controller';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [
@@ -17,7 +19,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
       synchronize: true
     })
   ],
-  controllers: [AppController, TasksController],
-  providers: [AppService, TasksService, PrismaService],
+  controllers: [
+    AppController,
+     TasksController,
+     UserController
+    ],
+  providers: [
+    AppService,
+     TasksService,
+      PrismaService,
+      UserService
+    ],
 })
 export class AppModule {}

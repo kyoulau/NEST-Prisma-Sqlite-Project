@@ -43,17 +43,21 @@ export class TasksService {
   // }
 
   async createTask(createTaskDto: CreateTaskDto){
-    const newTask = await this.prisma.task.create({
-      data: {
-        title: createTaskDto.title,
-        description: createTaskDto.description,
-        priority: createTaskDto.priority,
-        completed: false
-      }
-    })
-
-
-    return newTask
+    try{
+      const newTask = await this.prisma.task.create({
+        data: {
+          title: createTaskDto.title,
+          description: createTaskDto.description,
+          priority: createTaskDto.priority,
+          completed: false,
+          userId: createTaskDto.userId
+        }
+      })
+      return newTask
+    } catch(err){
+      throw new HttpException("Falha ao cadastrar tarefa", HttpStatus.BAD_REQUEST)
+    }
+    
   }
 
   // findAllTasks(): Task[]//This part defines the return type of the method.
@@ -63,6 +67,7 @@ export class TasksService {
 
   async findAllTasks(): Promise<GetTaskDto[]>{
     const tasks: Task[] =  await this.prisma.task.findMany();
+    
     return tasks;
   }
 
