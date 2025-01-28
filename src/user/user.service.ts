@@ -84,7 +84,7 @@ export class UserService {
         })
 
         return{
-          message: "Excluido com sucessooooooo"
+          message: "User deleted with success"
         }
       }
 
