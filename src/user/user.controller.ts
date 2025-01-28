@@ -19,6 +19,7 @@ export class UserController {
 
   @Get()
   @UseInterceptors(LoggersInterceptor)
+  @UseInterceptors(SuccessInterceptor)
   async getAllUsers(): Promise<GetUserDto[]>{
     const allUsers = await this.userService.getAllUsers();
     return allUsers.map( user =>({
@@ -32,19 +33,22 @@ export class UserController {
 
   @Get(':id')
   @UseInterceptors(LoggersInterceptor)
+  @UseInterceptors(SuccessInterceptor)
   async getUserById(@Param('id', ParseIntPipe)id:number){
     const uniqueUser = await this.userService.getUserById(id)
     return uniqueUser
   }
 
   @Patch(':id')
-  //@UseInterceptors(LoggersInterceptor)
-  async updateUserById(@Param('id', ParseIntPipe) id:number, @Body() updateUserDto: any){
+  @UseInterceptors(LoggersInterceptor)
+  @UseInterceptors(SuccessInterceptor)
+  async updateUserById(@Param('id', ParseIntPipe) id:number, @Body() updateUserDto: UpdateUserDto){
     console.log(id)
     return this.userService.updateUser(id, updateUserDto)
   }
 
   @Delete(':id')
+  @UseInterceptors(SuccessInterceptor)
   async deleteUserByid(@Param('id', ParseIntPipe)id:number){
     return this.userService.deleteUser(id)
   }

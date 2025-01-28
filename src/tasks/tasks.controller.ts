@@ -36,7 +36,6 @@ export class TasksController {
   @Get(':id')
   listOneTask(@Param('id', ParseIntPipe) id:number){
     return this.tasksService.findTaskById(id);
-    // Conversao do pipe feito na propria requisição. Id começa como string mas e transformado pelo pipe para ser number
   }
 
   @Patch(':id')
