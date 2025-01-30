@@ -1,17 +1,20 @@
-import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe, UseFilters } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './userDTO/create-user-dto';
 import { SuccessInterceptor } from './Interceptor/sucess-interceptor-interface';
 import { GetUserDto } from './userDTO/get-user-dto';
 import { LoggersInterceptor } from 'src/Interceptors/log.interceptor';
 import { UpdateUserDto } from './userDTO/update-user-dto';
+import { HttpExceptionFilter } from 'src/filters/exception-filters';
 
 @Controller('user')
+@UseFilters(HttpExceptionFilter)
 export class UserController {
   constructor(private userService: UserService){}
 
   //cria usuário
   @Post()
+  @UseInterceptors(LoggersInterceptor)
   @UseInterceptors(SuccessInterceptor)
   async createUser(@Body() createUserDto: CreateUserDto){
     return this.userService.createUser(createUserDto)
@@ -48,6 +51,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseInterceptors(LoggersInterceptor)
   @UseInterceptors(SuccessInterceptor)
   async deleteUserByid(@Param('id', ParseIntPipe)id:number){
     return this.userService.deleteUser(id)
