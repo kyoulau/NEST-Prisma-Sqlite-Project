@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserController } from 'src/user/user.controller';
 import { UserService } from 'src/user/user.service';
 import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
       database:'src/database/dev.db',
       entities: [Task, User],
       synchronize: true
-    })
+    }),
+    AuthModule
   ],
   controllers: [
     AppController,
