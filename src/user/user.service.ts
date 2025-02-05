@@ -85,6 +85,8 @@ export class UserService {
             },
             data: {
               username: dataUser.username,
+              userEmail: updateUserDto.userEmail,
+              userRoleAtributed:updateUserDto.userRoleAtributed,
               userPassword: dataUser?.userPassword ?? userForFind.userPassword
             },
             select:{

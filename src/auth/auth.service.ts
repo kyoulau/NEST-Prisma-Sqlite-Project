@@ -5,16 +5,22 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingServiceProtocol } from './hash/bcrypt.service';
 import jwtConfig from './config/jwt.config';
 import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
   constructor( 
     private prisma: PrismaService,
-    private hashing: HashingServiceProtocol,
+    private readonly hashing: HashingServiceProtocol,
+
     @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType< typeof jwtConfig>
+    private readonly jwtConfiguration: ConfigType< typeof jwtConfig>,
+    private readonly jwtService: JwtService
   ) {}
+
+
+
   async authenticate(signInDto: SignInDto) {
     //busca usuário no prisma
     try {
@@ -35,18 +41,26 @@ export class AuthService {
           throw new HttpException("As credenciais dadas estão incorretas", HttpStatus.UNAUTHORIZED)
         }
 
+        //faz o token pelo login do usuário
+
+        const usertoken = await this.jwtService.signAsync(
+          {
+            id: user.id,
+            userEmail: user.userEmail
+          },
+          {
+            secret: this.jwtConfiguration.secret,
+            issuer: this.jwtConfiguration.issuer
+          }
+        )
         return{
-          id: user.id,
-          username: user.username,
-          userEmail: user.userEmail,
+          sub: user.id,
+          token:usertoken
         }
+        
     } catch (error) {
       console.log(error)
     }
-
-
-
-  
-
   }
+
 }
