@@ -20,10 +20,5 @@ export class CreateTaskDto {
   @IsIn([TaskPriority.HIGH, TaskPriority.MEDIUM, TaskPriority.LOW])
   readonly priority: string
 
-  @IsNumber()
-  @IsNotEmpty()
-  readonly userId: number
-
-
 }
 

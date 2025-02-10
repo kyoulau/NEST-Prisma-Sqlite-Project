@@ -8,8 +8,6 @@ export const TokenPayloadParam = createParamDecorator(
     const context = ctx.switchToHttp()
     const request : Request = context.getRequest()
 
-    console.log("olaar")
-
     return request[REQUEST_TOKEN_PAYLOAD_NAME]
 
   }

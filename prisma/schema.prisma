@@ -54,6 +54,7 @@ model User{
   id Int @id @default(autoincrement())
   username String
   userEmail String
+  active Boolean @default(true)
   userPassword String
   createdAt DateTime? @default(now())
   userRoleAtributed String

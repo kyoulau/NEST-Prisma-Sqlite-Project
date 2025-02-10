@@ -26,7 +26,9 @@ export class AuthService {
     try {
       const user = await this.prisma.user.findFirst({
         where: {
-          userEmail: signInDto.userEmail
+          //busca usuário pelo email e se ele for ativo
+          userEmail: signInDto.userEmail,
+          active: true
         }})
 
         if(!user){
@@ -60,6 +62,7 @@ export class AuthService {
         
     } catch (error) {
       console.log(error)
+      throw new HttpException("Usuário não encontrado.", HttpStatus.BAD_REQUEST)
     }
   }
 

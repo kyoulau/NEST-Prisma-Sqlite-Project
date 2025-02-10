@@ -5,6 +5,7 @@ import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
 import { Task } from 'src/data/database/task.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetTaskDto } from 'src/data/DTO/get-task.dto';
+import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
 
 @Injectable()
 export class TasksService {
@@ -42,7 +43,7 @@ export class TasksService {
   //   return newTask;
   // }
 
-  async createTask(createTaskDto: CreateTaskDto){
+  async createTask(createTaskDto: CreateTaskDto, tokenPayload: PayloadTokenDto){
     try{
       const newTask = await this.prisma.task.create({
         data: {
@@ -50,7 +51,7 @@ export class TasksService {
           description: createTaskDto.description,
           priority: createTaskDto.priority,
           completed: false,
-          userId: createTaskDto.userId
+          userId: tokenPayload.id
         }
       })
       return newTask
@@ -118,15 +119,23 @@ export class TasksService {
 
   // }
 
-  async updateTask(id: number, updateTaskDto: UpdateClassDTO){
+  async updateTask(id: number, updateTaskDto: UpdateClassDTO,tokenPayload: PayloadTokenDto){
 
-    const taskItemForEdit = await this.prisma.task.findFirst({
-      where: {
-        id:id
+    try {
+      const taskItemForEdit = await this.prisma.task.findFirst({
+        where: {
+          id:id
+        }
+      })
+
+      if(!taskItemForEdit){
+        throw new HttpException("Essa tarefa não existe!", HttpStatus.NOT_FOUND)
       }
-    })
 
-    if(taskItemForEdit?.title){
+      if(taskItemForEdit.id != tokenPayload.id){
+        throw new HttpException("Acesso Negado.", HttpStatus.UNAUTHORIZED)
+      }
+
       const newTask = await this.prisma.task.update({
         where: {
           id: taskItemForEdit.id
@@ -136,10 +145,10 @@ export class TasksService {
 
       return newTask
 
-    }else{
-      throw new HttpException("Essa tarefa não existe!", HttpStatus.NOT_FOUND)
+    } catch (error) {
+      console.log(error)
+      throw new HttpException("Erro ao atualizar tarefa!", HttpStatus.NOT_FOUND)
     }
-
   }
 
   // deleteTask(id:string){
@@ -156,13 +165,17 @@ export class TasksService {
 
   // }
 
-   async deleteTask(id: number){
+   async deleteTask(id: number,tokenPayload: PayloadTokenDto){
 
     const taskItemForDelete = await this.prisma.task.findFirst({
       where:{
         id:id
       }
     })
+
+    if(taskItemForDelete.id != tokenPayload.id){
+      throw new HttpException("Acesso Negado.", HttpStatus.UNAUTHORIZED)
+    }
 
     if(taskItemForDelete?.title){
 
