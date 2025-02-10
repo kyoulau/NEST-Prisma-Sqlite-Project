@@ -5,6 +5,9 @@ import jwtConfig from "../config/jwt.config";
 import { ConfigType } from "@nestjs/config";
 import { REQUEST_TOKEN_PAYLOAD_NAME } from "../common/auth.constants";
 
+//Esse guard faz a validação do token JWT,Isso é essencial para proteger recursos sensíveis da aplicação.
+//Garantir que apenas requisições autenticadas prossigam para o controller.
+//Extrair e armazenar o payload do token no objeto request.
 @Injectable()
 export class AuthTokenGuar implements CanActivate{
 

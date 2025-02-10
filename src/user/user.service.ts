@@ -6,6 +6,7 @@ import { GetUserDto } from './userDTO/get-user-dto';
 import { User } from '@prisma/client';
 import { UpdateUserDto } from './userDTO/update-user-dto';
 import { HashingServiceProtocol } from 'src/auth/hash/bcrypt.service';
+import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
 
 @Injectable()
 export class UserService {
@@ -63,22 +64,27 @@ export class UserService {
     }
   }
 
-  async updateUser(id:number,updateUserDto:UpdateUserDto){
+  async updateUser( id:number, updateUserDto:UpdateUserDto, tokenPayload: PayloadTokenDto ){
     try{
       const userForFind = await this.prisma.user.findFirst({
         where:{id:id}
       })
 
-      if (userForFind?.username){
+      if(!userForFind){
+        throw new HttpException("Usuário não existe!", HttpStatus.BAD_REQUEST)
+      }
 
-        const dataUser: { username?: string, userPassword?: string } = { username: updateUserDto.username ?? userForFind.username }
+      if (userForFind.id != tokenPayload.id){
+        throw new HttpException("Acesso negado.", HttpStatus.BAD_REQUEST)
+      }
 
-        if(updateUserDto.userPassword){
-          const passwordHash = await this.hashingService.hashing(updateUserDto.userPassword)
-          dataUser['userPassword'] = passwordHash
+      const dataUser: { username?: string, userPassword?: string } = { username: updateUserDto.username ?? userForFind.username }
 
-        }
+      if(updateUserDto.userPassword){
+        const passwordHash = await this.hashingService.hashing(updateUserDto.userPassword)
+        dataUser['userPassword'] = passwordHash
 
+      }
           const newUser = await this.prisma.user.update({
             where:{
               id: userForFind.id
@@ -98,19 +104,20 @@ export class UserService {
 
           return newUser
 
-      }else{
-        throw new HttpException("Não existe esse usuário!", HttpStatus.NOT_FOUND)
-      }
     } catch(err){
       console.log(err)
+      throw new HttpException('Falha ao atualizar o usuário!', HttpStatus.BAD_REQUEST)
     }
   }
 
-  async deleteUser(id: number){
+  async deleteUser(id: number, tokenPayload: PayloadTokenDto){
     try{
       const userForExclude= await this.prisma.user.findFirst({
         where:{id:id}
       })
+
+      if (userForExclude.id !== tokenPayload.id){ 
+        throw new HttpException("Acesso negado.", HttpStatus.BAD_REQUEST) }
 
       if (userForExclude?.username){
         await this.prisma.user.delete({
@@ -126,6 +133,7 @@ export class UserService {
 
     } catch(err){
       console.log(err)
+      throw new HttpException('Falha ao atualizar o usuário!', HttpStatus.BAD_REQUEST)
     }
   }
 

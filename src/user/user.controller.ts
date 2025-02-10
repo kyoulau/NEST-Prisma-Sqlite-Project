@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe, UseFilters, UseGuards, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe, UseFilters, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './userDTO/create-user-dto';
 import { SuccessInterceptor } from './Interceptor/sucess-interceptor-interface';
@@ -7,9 +7,9 @@ import { LoggersInterceptor } from 'src/Interceptors/log.interceptor';
 import { UpdateUserDto } from './userDTO/update-user-dto';
 import { HttpExceptionFilter } from 'src/filters/exception-filters';
 import { AuthTokenGuar } from 'src/auth/guards/auth-token-guards';
-import { Request } from 'express';
-import { REQUEST_TOKEN_PAYLOAD_NAME } from 'src/auth/common/auth.constants';
 import { NotFoundExceptionFilter } from 'src/auth/filters/token-filter.not-found';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
 
 @Controller('user')
 @UseFilters(HttpExceptionFilter)
@@ -52,17 +52,22 @@ export class UserController {
   async updateUserById(
     @Param('id', ParseIntPipe) id:number, 
     @Body() updateUserDto: UpdateUserDto,
-    @Req() req: Request
+    //arquivo para injetar payload, ele já passou pelo Guard que estava protegendo, passa pelo controller, que é pegado pela nossa constante tokenPayLoad
+    @TokenPayloadParam() tokenPayload: PayloadTokenDto
   ){
-    //arquivo para injetar payload, ele já passou pelo Guard que estava protegendo, passa pelo controller, que é pegado pela nossa constante
-    console.log("ID User=",req[REQUEST_TOKEN_PAYLOAD_NAME]?.id)
-    return this.userService.updateUser(id, updateUserDto)
+    console.log("PAYLOAD RECEBIDO = ", tokenPayload)
+    console.log("id recebido", id)
+    return this.userService.updateUser(id, updateUserDto,tokenPayload)
   }
 
   @Delete(':id')
   @UseInterceptors(LoggersInterceptor)
+  @UseGuards(AuthTokenGuar)
   @UseInterceptors(SuccessInterceptor)
-  async deleteUserByid(@Param('id', ParseIntPipe)id:number){
-    return this.userService.deleteUser(id)
+  async deleteUserByid(
+    @Param('id', ParseIntPipe)id:number,
+    @TokenPayloadParam() tokenPayload: PayloadTokenDto
+  ){
+    return this.userService.deleteUser(id,tokenPayload)
   }
 }
