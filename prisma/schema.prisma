@@ -59,4 +59,5 @@ model User{
   createdAt DateTime? @default(now())
   userRoleAtributed String
   Task Task[]
+  avatar String?
 }

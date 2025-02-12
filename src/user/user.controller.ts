@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post, Body, UseInterceptors, Param, ParseIntPipe, UseFilters, UseGuards, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './userDTO/create-user-dto';
 import { SuccessInterceptor } from './Interceptor/sucess-interceptor-interface';
@@ -10,6 +10,10 @@ import { AuthTokenGuar } from 'src/auth/guards/auth-token-guards';
 import { NotFoundExceptionFilter } from 'src/auth/filters/token-filter.not-found';
 import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
 import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
+import { Express } from 'express'
+import { Multer } from 'multer'
+import { FileSizeValidationPipe } from 'src/fileValidation/file-size-validation';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 @UseFilters(HttpExceptionFilter)
@@ -69,5 +73,18 @@ export class UserController {
     @TokenPayloadParam() tokenPayload: PayloadTokenDto
   ){
     return this.userService.deleteUser(id,tokenPayload)
+  }
+
+  @Post('upload')
+  @UseGuards(AuthTokenGuar)
+  @UseInterceptors(LoggersInterceptor)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploaduserAvatar(
+    @TokenPayloadParam() tokenPayload: PayloadTokenDto,
+    @UploadedFile(
+      new FileSizeValidationPipe(50 * 1024 * 1024, ['image/jpeg', 'image/png'])
+    ) file: Express.Multer.File,
+  ){
+    return this.userService.uploadImage(tokenPayload,file)
   }
 }

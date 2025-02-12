@@ -40,6 +40,7 @@ export class AuthTokenGuar implements CanActivate{
     }
 
     try {
+      console.log("estou parrando por aquir")
       const payload = await this.jwtService.verifyAsync(token, this.jwtConfiguration)
 
       request[REQUEST_TOKEN_PAYLOAD_NAME] = payload
