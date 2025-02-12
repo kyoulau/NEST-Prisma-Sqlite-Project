@@ -1,12 +1,16 @@
 import { IsEmail } from 'class-validator';
 import { PrismaService } from './../prisma/prisma.service';
-import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
+import { HttpException, Injectable, HttpStatus, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './userDTO/create-user-dto';
 import { GetUserDto } from './userDTO/get-user-dto';
 import { User } from '@prisma/client';
 import { UpdateUserDto } from './userDTO/update-user-dto';
 import { HashingServiceProtocol } from 'src/auth/hash/bcrypt.service';
 import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
+import * as path from 'path';
+import * as fs from 'node:fs/promises';
+import { Express } from 'express';
+import { Multer } from 'multer';
 
 @Injectable()
 export class UserService {
@@ -137,4 +141,53 @@ export class UserService {
     }
   }
 
+  async uploadImage(
+    tokenPayload: PayloadTokenDto, 
+    file: Express.Multer.File
+  ){
+    try {
+      if (!file || !file.originalname) {
+        throw new BadRequestException('Arquivo inválido ou não enviado.');
+      }
+      const mimeType = file.mimetype;
+      const fileExtension = path.extname(file.originalname).toLocaleLowerCase().substring(1)
+
+      const fileName = `${tokenPayload.id}.${fileExtension}`
+
+      const fileLocal = path.resolve(process.cwd(), 'files', fileName)
+
+      await fs.writeFile(fileLocal, file.buffer)
+
+      const user = await this.prisma.user.findUnique({
+        where:{
+          id: tokenPayload.id
+        }
+      })
+
+      if(!user){
+        throw new HttpException("Erro ao realizar requisição!", HttpStatus.BAD_REQUEST)
+      }
+
+      const updateUser = await this.prisma.user.update({
+        where:{
+          id: user.id
+        },
+        data:{
+          avatar: fileLocal
+        },
+        select:{
+          id: true,
+          userEmail: true,
+          avatar:true,
+          username: true
+        }
+      })
+      
+      return { message: 'Arquivo enviado com sucesso!', file };
+      
+    } catch (error) {
+      console.log(error)
+      throw new HttpException("Erro ao realizar requisição!", HttpStatus.BAD_REQUEST)
+    }
+  }
 }

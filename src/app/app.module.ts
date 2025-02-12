@@ -11,6 +11,9 @@ import { UserController } from 'src/user/user.controller';
 import { UserService } from 'src/user/user.service';
 import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 import { AuthModule } from 'src/auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+//caminho das imagens
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -20,7 +23,11 @@ import { AuthModule } from 'src/auth/auth.module';
       entities: [Task, User],
       synchronize: true
     }),
-    AuthModule
+    AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..','..', 'files'),
+      serveRoot:"/files"
+    })
   ],
   controllers: [
     AppController,
