@@ -60,11 +60,26 @@ export class UserService {
   async getUserById(id:number){
     try {
       const userForFind= await this.prisma.user.findFirst({
-        where:{id:id}
+        where:{id:id},
+        select:{
+          id:true,
+          userEmail:true,
+          username:true,
+          active:true,
+          createdAt:true,
+          userRoleAtributed:true,
+          avatar:true,
+          userPassword:true
+        }
       })
-      return userForFind
+
+      if (!userForFind) {
+        throw new HttpException("Usuário não encontrado!",HttpStatus.NOT_FOUND)
+      }
+       return userForFind
     } catch (err) {
       console.log(err)
+      throw new HttpException("Usuário não encontrado!",HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
