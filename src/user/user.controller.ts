@@ -59,8 +59,6 @@ export class UserController {
     //arquivo para injetar payload, ele já passou pelo Guard que estava protegendo, passa pelo controller, que é pegado pela nossa constante tokenPayLoad
     @TokenPayloadParam() tokenPayload: PayloadTokenDto
   ){
-    console.log("PAYLOAD RECEBIDO = ", tokenPayload)
-    console.log("id recebido", id)
     return this.userService.updateUser(id, updateUserDto,tokenPayload)
   }
 

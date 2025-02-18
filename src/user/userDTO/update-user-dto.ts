@@ -3,6 +3,7 @@ import { CreateUserDto } from "./create-user-dto";
 import { IsOptional } from "class-validator";
 
 export class UpdateUserDto{
+
   @IsOptional()
   username: string
 
@@ -14,5 +15,9 @@ export class UpdateUserDto{
 
   @IsOptional()
   userRoleAtributed: string
+
+  @IsOptional()
+  active: Boolean
+
 
 }

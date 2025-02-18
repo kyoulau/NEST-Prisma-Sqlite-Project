@@ -10,6 +10,8 @@ import { Test } from "@nestjs/testing";
 import { create } from 'domain';
 import { find } from 'rxjs';
 import { Task } from 'src/data/database/task.entity';
+import { UpdateUserDto } from '../userDTO/update-user-dto';
+import { PayloadTokenDto } from 'src/auth/DTO/payload-token.dto';
 
 //Seguir Ordenação AAA 1- Configurar teste, algo que deseja fazer a ação e conferir se ação foi feita como foi esperada
 describe ('UserService', ()=> {
@@ -33,7 +35,8 @@ describe ('UserService', ()=> {
                 userEmail: 'testeunitario@gmail.com',
                 userRoleAtributed: 'USER'
               }),
-              findFirst:jest.fn()
+              findFirst:jest.fn(),
+              update: jest.fn()
               
             }
           }
@@ -135,5 +138,66 @@ describe ('UserService', ()=> {
       )
     })
   })
-  
-})
+
+  describe( 'Update User', ()=>{
+    it('Should return an error when user is not found!', async () => {
+      const updateUserDto : UpdateUserDto = {
+        username: 'jungkookThePlayBoy',
+        userEmail: 'jungkook@gmail.com',
+        active: true,
+        userPassword: 'senhaUsuarioMaluco02**',
+        userRoleAtributed: 'USER',
+      }
+
+      const tokenPayload : PayloadTokenDto = {
+        id: 66,
+        userEmail:"testeDeEmail@gmail.com",
+        iat: 123,
+        iss:123
+      }
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(null)
+
+      expect(userService.updateUser(66, updateUserDto,tokenPayload)).rejects.toThrow(
+        new HttpException('Falha ao atualizar o usuário!', HttpStatus.BAD_REQUEST)
+      )
+    })
+
+    it('Should return Unauthorized when user is not authorized', async ()=>{
+      const updateUserDto : UpdateUserDto = {
+        username: 'jungkookThePlayBoy',
+        userEmail: 'jungkook@gmail.com',
+        active: true,
+        userPassword: 'senhaUsuarioMaluco02**',
+        userRoleAtributed: 'USER',
+      }
+
+      const tokenPayload : PayloadTokenDto = {
+        id: 66,
+        userEmail:"testeDeEmail@gmail.com",
+        iat: 123,
+        iss:123
+      }
+
+      const mockUserForFind = {
+        id: 70,
+        username: 'jungkookThePlayBoy',
+        userEmail: 'jungkook@gmail.com',
+        active: true,
+        userPassword: 'senhaUsuarioMaluco02**',
+        createdAt: new Date(),
+        userRoleAtributed: 'USER',
+        Task: [],
+        avatar: ''
+      }
+
+      jest.spyOn(prismaService.user, 'findFirst').mockResolvedValue(mockUserForFind)
+
+      expect(userService.updateUser(70, updateUserDto,tokenPayload)).rejects.toThrow(
+        new HttpException('Falha ao atualizar o usuário!', HttpStatus.BAD_REQUEST)
+      )
+
+    })
+  })
+  }
+)
